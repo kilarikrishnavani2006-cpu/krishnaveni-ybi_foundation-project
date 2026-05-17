@@ -1,22 +1,37 @@
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import GridSearchCV
 
 X = [[10], [20], [30], [40], [50], [60], [70], [80]]
+y = ['Low', 'Low', 'Medium', 'Medium', 'High', 'High', 'Very High', 'Very High']
 
-y = ['Low', 'Low', 'Medium', 'Medium',
-     'High', 'High', 'Very High', 'Very High']
-model = KNeighborsClassifier(n_neighbors=3)
-model.fit(X, y)
+# AI Enhancement: Feature Scaling
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# AI Enhancement: Hyperparameter Tuning
+param_grid = {'n_neighbors': [1, 3, 5, 7]}
+grid_search = GridSearchCV(KNeighborsClassifier(), param_grid, cv=3)
+grid_search.fit(X_scaled, y)
+best_k = grid_search.best_params_['n_neighbors']
+
+# Build final model
+model = KNeighborsClassifier(n_neighbors=best_k)
+model.fit(X_scaled, y)
+
+# Test data
 test_data = [[45], [75]]
-prediction = model.predict(test_data)
+test_scaled = scaler.transform(test_data)
+prediction = model.predict(test_scaled)
+probabilities = model.predict_proba(test_scaled)
+
 print("========== YBI Foundation Project ==========")
+print("\nInput Value 1:", test_data[0][0], "| Prediction:", prediction[0])
+print("Confidence:", probabilities[0])
+print("\nInput Value 2:", test_data[1][0], "| Prediction:", prediction[1])
+print("Confidence:", probabilities[1])
 
-print("Input Value 1 :", test_data[0][0])
-print("Predicted Output :", prediction[0])
-
-print("Input Value 2 :", test_data[1][0])
-print("Predicted Output :", prediction[1])
-accuracy = model.score(X, y)
+accuracy = model.score(X_scaled, y)
 print(f"\nModel Accuracy: {accuracy:.2%}")
-print(f"Number of Neighbors Used: {model.n_neighbors}")
-print("Machine Learning Algorithm Executed Successfully")
-print("Project Completed Successfully with Values")
+print(f"Optimal Neighbors (k): {best_k}")
+print("Machine Learning Algorithm in ARTIFICIAL INTELLIGENCE Executed Successfully")
